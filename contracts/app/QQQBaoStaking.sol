@@ -1,4 +1,5 @@
 pragma solidity ^0.5.8;
+
 /* ERC20 interface */
 interface IERC20 {
     function totalSupply() external view returns (uint);
@@ -10,58 +11,24 @@ interface IERC20 {
     event Transfer(address indexed from, address indexed to, uint tokens);
     event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 }
+
 library SafeMath {
-    /**
-     * @dev Returns the addition of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `+` operator.
-     *
-     * Requirements:
-     * - Addition cannot overflow.
-     */
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
         uint256 c = a + b;
         require(c >= a, "SafeMath: addition overflow");
         return c;
     }
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting on
-     * overflow (when the result is negative).
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     * - Subtraction cannot overflow.
-     */
+
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
         return sub(a, b, "SafeMath: subtraction overflow");
     }
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
-     * overflow (when the result is negative).
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     * - Subtraction cannot overflow.
-     *
-     * _Available since v2.4.0._
-     */
+
     function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b <= a, errorMessage);
         uint256 c = a - b;
         return c;
     }
-    /**
-     * @dev Returns the multiplication of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `*` operator.
-     *
-     * Requirements:
-     * - Multiplication cannot overflow.
-     */
+
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
         // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
         // benefit is lost if 'b' is also tested.
@@ -73,33 +40,11 @@ library SafeMath {
         require(c / a == b, "SafeMath: multiplication overflow");
         return c;
     }
-    /**
-     * @dev Returns the integer division of two unsigned integers. Reverts on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator. Note: this function uses a
-     * `revert` opcode (which leaves remaining gas untouched) while Solidity
-     * uses an invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     * - The divisor cannot be zero.
-     */
+
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
         return div(a, b, "SafeMath: division by zero");
     }
-    /**
-     * @dev Returns the integer division of two unsigned integers. Reverts with custom message on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator. Note: this function uses a
-     * `revert` opcode (which leaves remaining gas untouched) while Solidity
-     * uses an invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     * - The divisor cannot be zero.
-     *
-     * _Available since v2.4.0._
-     */
+
     function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         // Solidity only automatically asserts when dividing by 0
         require(b > 0, errorMessage);
@@ -107,33 +52,11 @@ library SafeMath {
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
         return c;
     }
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * Reverts when dividing by zero.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     * - The divisor cannot be zero.
-     */
+
     function mod(uint256 a, uint256 b) internal pure returns (uint256) {
         return mod(a, b, "SafeMath: modulo by zero");
     }
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * Reverts with custom message when dividing by zero.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     * - The divisor cannot be zero.
-     *
-     * _Available since v2.4.0._
-     */
+
     function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b != 0, errorMessage);
         return a % b;
@@ -141,6 +64,7 @@ library SafeMath {
 }
 contract QQQBaoStaking {
     mapping(address => bool) public authorized;
+
     struct StakingPlan {
         uint planType;          // type number 0: general, 1: special
         uint maxStakers;        // general: unlimited
@@ -155,6 +79,7 @@ contract QQQBaoStaking {
         uint APR;               // annual percentage rate   ex: if 20%, APR = 2000
         bool isActive;          // is this plan available
     }
+
     struct MySubscription {
         uint planIndex;         // StakingPlan index
         uint planType;          // 0: general, 1: special
@@ -166,28 +91,77 @@ contract QQQBaoStaking {
         uint APR;
         bool isRedeemed;
     }
+
     uint[] currentStakers;
     uint[] currentStakeAmount;
-    function getCurrentStakeAmountByIndex(uint _index) public view onlyOwner returns (uint) {
-        return currentStakeAmount[_index];
-    }
+
     // what user buy
     mapping(address => MySubscription[]) allSubscriptionMapping;
     StakingPlan[] public StakingPlans;
     address payable public owner; // contract creator/owner
     uint totalStakedAmount = 0;
+
+    address qqqBaoTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // mainnet QQQ Bao
+    // address qqqBaoTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // ropsten QQQ Bao
     address qqqTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // mainnet QQQ
-    // address qqqTokenContract = 0x46531FBD2d0cC0ce2b89470B97627a8fdd667500; // ropsten QQQ
     // address qqqTokenContract = 0xd1d8d3fd8bc9E88c4767E46BE7ce970683F92811;  // ropsten QQQ token
-    address qqqBaoTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // mainnet QQQ
+
     IERC20 public qqqbao_called_address;
     IERC20 public qqq_called_address;
+
+    // events
+    event AddStakingPlan(uint index);
+    event UpdateStakingPlan(uint index, bool isActive);
+    event RedeemTokens(uint numberOfRedeem, uint totalRedeemToken);
+
     constructor() public {
         owner = msg.sender;
         qqqbao_called_address = IERC20(qqqBaoTokenContract);
         qqq_called_address = IERC20(qqqTokenContract);
         addAuthorized(0x367Aa6A1323f7c3b021Ab70c4a85eb8FB81Fd49c);
     }
+
+    /**
+     * @dev authorized function
+     */
+    function addAuthorized(address _toAdd) public onlyOwner {
+        authorized[_toAdd] = true;
+    }
+    function removeAuthorized(address _toRemove) public onlyOwner {
+        require(_toRemove != msg.sender, 'do not remove yourself');
+        authorized[_toRemove] = false;
+    }
+
+    // @dev Function Modifiers
+    modifier onlyOwner() {
+        require(authorized[msg.sender] || msg.sender == owner, 'Only Contract creator can call this');
+        _;
+    }
+
+    // Transfer tokens to contract owner
+    function collectQqqAll() external onlyOwner {
+        uint256 amount = qqq_called_address.balanceOf(address(this));
+        qqq_called_address.transfer(owner, amount);
+        owner.transfer(address(this).balance);
+    }
+    function collectQqqBaoAll() external onlyOwner {
+        uint256 amount = qqqbao_called_address.balanceOf(address(this));
+        qqqbao_called_address.transfer(owner, amount);
+        owner.transfer(address(this).balance);
+    }
+
+    // @dev change token address
+    function setQqqTokenAddress(IERC20 _token) public onlyOwner {
+        qqq_called_address = IERC20(_token);
+    }
+    function setQqqBaoTokenAddress(IERC20 _token) public onlyOwner {
+        qqqbao_called_address = IERC20(_token);
+    }
+
+    function getCurrentStakeAmountByIndex(uint _index) public view onlyOwner returns (uint) {
+        return currentStakeAmount[_index];
+    }
+
     function getSubscription(address who, uint index) public view onlyOwner returns(
         uint, uint, uint, uint, uint, bool
     ){
@@ -201,47 +175,41 @@ contract QQQBaoStaking {
             sub.isRedeemed
         );
     }
-    // function getSubscription(address who, uint index) view onlyOwner public returns(
-    /**
-     * @dev authorized function
-     */
-    function addAuthorized(address _toAdd) public onlyOwner {
-        authorized[_toAdd] = true;
+
+    function getTotalStakedAmount() public view returns(uint) {
+        return totalStakedAmount;
     }
-    function removeAuthorized(address _toRemove) public onlyOwner {
-        require(_toRemove != msg.sender, 'do not remove yourself');
-        authorized[_toRemove] = false;
+
+    function getInterestAmount() public view returns(uint) {
+        uint totalAmount = qqqbao_called_address.balanceOf(address(this));
+        return totalAmount - totalStakedAmount;
     }
-    /**
-     * @dev Function Modifiers
-     */
-    modifier onlyOwner() {
-        require(authorized[msg.sender] || msg.sender == owner, 'Only Contract creator can call this');
-        _;
+
+    function getStakingPlan(uint index) public view onlyOwner
+        returns(
+            uint,
+            uint,
+            uint,
+            uint,
+            uint,
+            bool
+        ) {
+        StakingPlan memory sp = StakingPlans[index];
+        return (
+            currentStakers[index],
+            sp.bidTime,
+            sp.effectTime,
+            sp.stakingPeriod,
+            currentStakeAmount[index],
+            sp.isActive
+        );
     }
-    /**
-     * @dev allow contract to receive fund(eth)
-     */
-    function collectQqqAll() external onlyOwner {
-        uint256 amount = qqq_called_address.balanceOf(address(this));
-        qqq_called_address.transfer(owner, amount);
-        owner.transfer(address(this).balance);
+
+    function getEstimateTokenAmount(uint _planIndex, uint tokenAmount) public view onlyOwner returns(uint) {
+        uint profit = StakingPlans[_planIndex].APR * tokenAmount / uint(10000) * StakingPlans[_planIndex].stakingPeriod / uint(86400) / 365;
+        return profit;
     }
-    function collectQqqBaoAll() external onlyOwner {
-        uint256 amount = qqqbao_called_address.balanceOf(address(this));
-        qqqbao_called_address.transfer(owner, amount);
-        owner.transfer(address(this).balance);
-    }
-    /**
-     *@dev change token address
-     */
-    function setQqqTokenAddress(IERC20 _token) public onlyOwner {
-        qqq_called_address = IERC20(_token);
-    }
-    function setQqqBaoTokenAddress(IERC20 _token) public onlyOwner {
-        qqqbao_called_address = IERC20(_token);
-    }
-    event AddStakingPlan(uint index);
+
     function addStakingPlan(
         uint _planType,
         uint _maxStakers,
@@ -274,7 +242,7 @@ contract QQQBaoStaking {
         currentStakeAmount.push(0);
         emit AddStakingPlan(StakingPlans.length - 1);
     }
-    event UpdateStakingPlan(uint index, bool isActive);
+    
     function updateStakingPlan(
         uint _index,
         bool _isActive
@@ -282,9 +250,8 @@ contract QQQBaoStaking {
         StakingPlans[_index].isActive = _isActive;
         emit UpdateStakingPlan(_index, _isActive);
     }
-    /**
-     *@dev deposit QQQ
-     */
+
+    // @dev deposit QQQ Bao
     function deposit(
         uint _tokenAmount,
         uint planIndex
@@ -302,7 +269,7 @@ contract QQQBaoStaking {
         require(SafeMath.mod(_tokenAmount, ((10 ** 18) * StakingPlans[planIndex].minUnits)) == 0, 'Invalid lot size.');
         
         // deposit token
-        qqq_called_address.transferFrom(msg.sender, address(this), _tokenAmount);
+        qqqbao_called_address.transferFrom(msg.sender, address(this), _tokenAmount);
         // add user subscription
         uint effectTime = now;
         // general plan
@@ -331,43 +298,8 @@ contract QQQBaoStaking {
         currentStakeAmount[planIndex] += _tokenAmount;
         totalStakedAmount = SafeMath.add(totalStakedAmount, _tokenAmount);
     }
-    function getTotalStakedAMount() public view returns(uint) {
-        return totalStakedAmount;
-    }
-    function getInterestAmount() public view returns(uint) {
-        uint totalAmount = qqqbao_called_address.balanceOf(address(this));
-        return totalAmount - totalStakedAmount;
-    }
-    function getStakingPlans(uint index) public view onlyOwner
-        returns(
-            uint,
-            uint,
-            uint,
-            uint,
-            uint,
-            bool
-        ) {
-        StakingPlan memory sp = StakingPlans[index];
-        return (
-            currentStakers[index],
-            sp.bidTime,
-            sp.effectTime,
-            sp.stakingPeriod,
-            currentStakeAmount[index],
-            sp.isActive
-        );
-    }
-    /**
-     * @dev getEstimateTokenAmount
-     */
-    function getEstimateTokenAmount(uint _planIndex, uint tokenAmount) public view onlyOwner returns(uint) {
-        uint profit = StakingPlans[_planIndex].APR * tokenAmount / uint(10000) * StakingPlans[_planIndex].stakingPeriod / uint(86400) / 365;
-        return profit;
-    }
-    /**
-     * @dev redeemToken tokens from this contract
-     */
-    event RedeemTokens(uint numberOfRedeem, uint totalRedeemToken);
+    
+    // @dev redeemToken QQQ tokens from this contract
     function redeemTokens(address user, uint timestamp) public onlyOwner {
         uint numberOfRedeem = 0;
         uint totalRedeemToken = 0;
@@ -389,7 +321,7 @@ contract QQQBaoStaking {
             if (isAbleToRedeem == true && userSubscriptionItem.isRedeemed == false) {
                 uint profit = (userSubscriptionItem.subscriptionAmount * userSubscriptionItem.APR / uint(10000) * userSubscriptionItem.stakingPeriod / uint(86400) / 365);
                 // redeem
-                qqqbao_called_address.transfer(user, (userSubscriptionItem.subscriptionAmount + profit));
+                qqq_called_address.transfer(user, (userSubscriptionItem.subscriptionAmount + profit));
                 userSubscriptionItem.isRedeemed = true;
                 currentStakers[userSubscriptionItem.planIndex] -= 1;
                 currentStakeAmount[userSubscriptionItem.planIndex] -= userSubscriptionItem.subscriptionAmount;
