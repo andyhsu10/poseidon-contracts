@@ -101,10 +101,10 @@ contract QQQBaoStaking {
     address payable public owner; // contract creator/owner
     uint totalStakedAmount = 0;
 
-    address qqqBaoTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // mainnet QQQ Bao
-    // address qqqBaoTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // ropsten QQQ Bao
-    address qqqTokenContract = 0xc76aF9A9e98FC6FcbAd7A8c9b52633a58169D74F; // mainnet QQQ
-    // address qqqTokenContract = 0x7E2F5e964750706E580a3da0778959E5f5B3f228;  // ropsten QQQ token
+    // address qqqBaoTokenContract = 0xc76aF9A9e98FC6FcbAd7A8c9b52633a58169D74F; // mainnet QQQ Bao
+    address qqqBaoTokenContract = 0x7E2F5e964750706E580a3da0778959E5f5B3f228; // ropsten QQQ Bao
+    // address qqqTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // mainnet QQQ
+    address qqqTokenContract = 0xd1d8d3fd8bc9E88c4767E46BE7ce970683F92811;  // ropsten QQQ token
 
     IERC20 public qqqbao_called_address;
     IERC20 public qqq_called_address;
