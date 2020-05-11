@@ -323,7 +323,9 @@ contract QQQBaoStaking {
                 uint profit = (userSubscriptionItem.subscriptionAmount * userSubscriptionItem.APR / uint(10000) * userSubscriptionItem.stakingPeriod / uint(86400) / 365);
                 profit = SafeMath.mul((profit / 1e18 + 1), 1e18);
                 // redeem
-                qqq_called_address.transfer(user, (userSubscriptionItem.subscriptionAmount + profit));
+                qqq_called_address.transfer(user, profit);
+                qqqbao_called_address.transfer(user, userSubscriptionItem.subscriptionAmount);
+
                 userSubscriptionItem.isRedeemed = true;
                 currentStakers[userSubscriptionItem.planIndex] -= 1;
                 currentStakeAmount[userSubscriptionItem.planIndex] -= userSubscriptionItem.subscriptionAmount;
