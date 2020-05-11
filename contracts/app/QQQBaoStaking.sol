@@ -207,6 +207,7 @@ contract QQQBaoStaking {
 
     function getEstimateTokenAmount(uint _planIndex, uint tokenAmount) public view onlyOwner returns(uint) {
         uint profit = StakingPlans[_planIndex].APR * tokenAmount / uint(10000) * StakingPlans[_planIndex].stakingPeriod / uint(86400) / 365;
+        profit = SafeMath.mul((profit / 1e18 + 1), 1e18);
         return profit;
     }
 
@@ -320,6 +321,7 @@ contract QQQBaoStaking {
             }
             if (isAbleToRedeem == true && userSubscriptionItem.isRedeemed == false) {
                 uint profit = (userSubscriptionItem.subscriptionAmount * userSubscriptionItem.APR / uint(10000) * userSubscriptionItem.stakingPeriod / uint(86400) / 365);
+                profit = SafeMath.mul((profit / 1e18 + 1), 1e18);
                 // redeem
                 qqq_called_address.transfer(user, (userSubscriptionItem.subscriptionAmount + profit));
                 userSubscriptionItem.isRedeemed = true;
