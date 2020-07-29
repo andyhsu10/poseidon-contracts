@@ -101,10 +101,10 @@ contract QASStaking {
     address payable public owner; // contract creator/owner
     uint totalStakedAmount = 0;
 
-    // address qasTokenContract = ; // mainnet QAS
-    address qasTokenContract = 0x96789F493fD8c37E39EE29b40A22072034e8f357; // ropsten QAS
-    // address qqqTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // mainnet QQQ
-    address qqqTokenContract = 0xd1d8d3fd8bc9E88c4767E46BE7ce970683F92811;  // ropsten QQQ token
+    address qasTokenContract = 0x31E2ABf378FCC64902a958D79CDEA44250C62CC1; // mainnet QAS
+    // address qasTokenContract = 0x96789F493fD8c37E39EE29b40A22072034e8f357; // ropsten QAS
+    address qqqTokenContract = 0x2822f6D1B2f41F93f33d937bc7d84A8Dfa4f4C21; // mainnet QQQ
+    // address qqqTokenContract = 0xd1d8d3fd8bc9E88c4767E46BE7ce970683F92811;  // ropsten QQQ token
 
     IERC20 public qas_called_address;
     IERC20 public qqq_called_address;
